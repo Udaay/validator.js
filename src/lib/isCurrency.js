@@ -55,7 +55,7 @@ function currencyRegex(options) {
 
 
 const default_currency_options = {
-  symbol: '$',
+  symbol: '₹',
   require_symbol: false,
   allow_space_after_symbol: false,
   symbol_after_digits: false,
