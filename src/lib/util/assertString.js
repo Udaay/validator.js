@@ -1,17 +1,12 @@
 /**
- * Converts a value to a string.
+ * Asserts that the input is a string.
  *
- * @param {*} input - The value to be converted to a string.
- * @returns {string} The string representation of the input.
+ * @param {*} input - The value to be checked.
+ * @throws {TypeError} If the input is not a string.
  */
-export default function toString(input) {
-  if (input === null || input === undefined || (isNaN(input) && !input.length)) {
-    return '';
+export default function assertString(input) {
+  if (typeof input !== 'string' && !(input instanceof String)) {
+    const invalidType = input === null ? 'null' : typeof input;
+    throw new TypeError(`Expected a string but received a ${invalidType}`);
   }
-
-  if (typeof input === 'object' && typeof input.toString === 'function') {
-    return input.toString();
-  }
-
-  return String(input);
 }
