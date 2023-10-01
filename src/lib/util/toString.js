@@ -1,12 +1,17 @@
+/**
+ * Converts a value to a string.
+ *
+ * @param {*} input - The value to be converted to a string.
+ * @returns {string} The string representation of the input.
+ */
 export default function toString(input) {
-  if (typeof input === 'object' && input !== null) {
-    if (typeof input.toString === 'function') {
-      input = input.toString();
-    } else {
-      input = '[object Object]';
-    }
-  } else if (input === null || typeof input === 'undefined' || (isNaN(input) && !input.length)) {
-    input = '';
+  if (input === null || input === undefined || (isNaN(input) && !input.length)) {
+    return '';
   }
+
+  if (typeof input === 'object' && typeof input.toString === 'function') {
+    return input.toString();
+  }
+
   return String(input);
 }

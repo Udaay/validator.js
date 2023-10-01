@@ -1,69 +1,76 @@
 /**
- * Algorithmic validation functions
- * May be used as is or implemented in the workflow of other validators.
- */
-
-/*
  * ISO 7064 validation function
- * Called with a string of numbers (incl. check digit)
- * to validate according to ISO 7064 (MOD 11, 10).
+ * Validates a string of numbers (including check digit) according to ISO 7064 (MOD 11, 10).
+ *
+ * @param {string} str - The input string to validate.
+ * @returns {boolean} True if the input is valid; otherwise, false.
  */
 export function iso7064Check(str) {
-  let checkvalue = 10;
+  let checkValue = 10;
+
   for (let i = 0; i < str.length - 1; i++) {
-    checkvalue = (parseInt(str[i], 10) + checkvalue) % 10 === 0 ? (10 * 2) % 11 :
-      (((parseInt(str[i], 10) + checkvalue) % 10) * 2) % 11;
+    const currentDigit = parseInt(str[i], 10);
+    checkValue = (currentDigit + checkValue) % 10 === 0 ? (10 * 2) % 11 : (((currentDigit + checkValue) % 10) * 2) % 11;
   }
-  checkvalue = checkvalue === 1 ? 0 : 11 - checkvalue;
-  return checkvalue === parseInt(str[10], 10);
+
+  checkValue = checkValue === 1 ? 0 : 11 - checkValue;
+  return checkValue === parseInt(str[str.length - 1], 10);
 }
 
-/*
+/**
  * Luhn (mod 10) validation function
- * Called with a string of numbers (incl. check digit)
- * to validate according to the Luhn algorithm.
+ * Validates a string of numbers (including check digit) according to the Luhn algorithm.
+ *
+ * @param {string} str - The input string to validate.
+ * @returns {boolean} True if the input is valid; otherwise, false.
  */
 export function luhnCheck(str) {
   let checksum = 0;
-  let second = false;
+  let doubleDigit = false;
+
   for (let i = str.length - 1; i >= 0; i--) {
-    if (second) {
-      const product = parseInt(str[i], 10) * 2;
-      if (product > 9) {
-        // sum digits of product and add to checksum
-        checksum += product.toString().split('').map(a => parseInt(a, 10)).reduce((a, b) => a + b, 0);
-      } else {
-        checksum += product;
-      }
+    const currentDigit = parseInt(str[i], 10);
+
+    if (doubleDigit) {
+      const product = currentDigit * 2;
+      checksum += product > 9 ? product - 9 : product;
     } else {
-      checksum += parseInt(str[i], 10);
+      checksum += currentDigit;
     }
-    second = !second;
+
+    doubleDigit = !doubleDigit;
   }
+
   return checksum % 10 === 0;
 }
 
-/*
+/**
  * Reverse TIN multiplication and summation helper function
- * Called with an array of single-digit integers and a base multiplier
- * to calculate the sum of the digits multiplied in reverse.
- * Normally used in variations of MOD 11 algorithmic checks.
+ * Calculates the sum of the digits multiplied in reverse with a given base multiplier.
+ *
+ * @param {number[]} digits - An array of single-digit integers.
+ * @param {number} base - The base multiplier.
+ * @returns {number} The calculated total.
  */
 export function reverseMultiplyAndSum(digits, base) {
   let total = 0;
+
   for (let i = 0; i < digits.length; i++) {
     total += digits[i] * (base - i);
   }
+
   return total;
 }
 
-/*
+/**
  * Verhoeff validation helper function
- * Called with a string of numbers
- * to validate according to the Verhoeff algorithm.
+ * Validates a string of numbers according to the Verhoeff algorithm.
+ *
+ * @param {string} str - The input string to validate.
+ * @returns {boolean} True if the input is valid; otherwise, false.
  */
 export function verhoeffCheck(str) {
-  const d_table = [
+  const dTable = [
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
     [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
@@ -76,7 +83,7 @@ export function verhoeffCheck(str) {
     [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
   ];
 
-  const p_table = [
+  const pTable = [
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
     [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
@@ -88,10 +95,12 @@ export function verhoeffCheck(str) {
   ];
 
   // Copy (to prevent replacement) and reverse
-  const str_copy = str.split('').reverse().join('');
+  const reversedStr = str.split('').reverse().join('');
   let checksum = 0;
-  for (let i = 0; i < str_copy.length; i++) {
-    checksum = d_table[checksum][p_table[i % 8][parseInt(str_copy[i], 10)]];
+
+  for (let i = 0; i < reversedStr.length; i++) {
+    checksum = dTable[checksum][pTable[i % 8][parseInt(reversedStr[i], 10)]];
   }
+
   return checksum === 0;
 }
